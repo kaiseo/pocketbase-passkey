@@ -1,0 +1,25 @@
+{
+    "name": "pocketbase-passkey",
+    "version": "1.0.0",
+    "description": "PocketBase Passkey (WebAuthn) SDK",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsup src/index.ts --format cjs,esm --dts --clean"
+    },
+    "keywords": [
+        "pocketbase",
+        "passkey",
+        "webauthn",
+        "auth"
+    ],
+    "author": "kaiseo",
+    "license": "MIT",
+    "devDependencies": {
+        "tsup": "^8.0.0",
+        "typescript": "^5.0.0"
+    }
+}

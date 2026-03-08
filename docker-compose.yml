@@ -1,0 +1,14 @@
+services:
+  pocketbase:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./pb_data:/app/pb_data
+    environment:
+      - PASSKEY_RPID=localhost
+      - PASSKEY_RP_DISPLAY_NAME=pocketbase-passkey
+      - PASSKEY_RP_ORIGINS=http://localhost:8090
+    restart: unless-stopped

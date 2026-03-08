@@ -1,0 +1,41 @@
+# Node
+node_modules/
+dist/
+.npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Go
+/server/pocketbase-passkey
+pocketbase-passkey
+*/pb_data/
+pb_data/
+*.test
+__debug_bin
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Project
+brain/
+.system_generated/
+*.webp
+*.png
+*.log
+walkthrough.md
+implementation_plan.md
+task.md
+doc.md

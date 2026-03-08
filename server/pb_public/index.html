@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PocketBase Passkey Demo</title>
+    <!-- Geist-like Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-primary: #000000;
+            --text-secondary: #666666;
+            --border-color: #eaeaea;
+            --accent-color: #000000;
+            --accent-hover: #111111;
+            --success-bg: #e6fffa;
+            --success-text: #006b5f;
+            --error-bg: #fff5f5;
+            --error-text: #e53e3e;
+            --card-radius: 8px;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #000000;
+                --text-primary: #ffffff;
+                --text-secondary: #888888;
+                --border-color: #333333;
+                --accent-color: #ffffff;
+                --accent-hover: #eeeeee;
+                --success-bg: #064e3b;
+                --success-text: #a7f3d0;
+                --error-bg: #7f1d1d;
+                --error-text: #fecaca;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 440px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.05em;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+
+        /* Card System */
+        .card {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow-sm);
+            padding: 32px;
+            margin-bottom: 24px;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ccc;
+        }
+
+        .status-dot.active {
+            background: #10b981;
+        }
+
+        .status-dot.loading {
+            background: #f59e0b;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px;
+            border-radius: var(--card-radius);
+            font-size: 14px;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--text-primary);
+            box-shadow: 0 0 0 1px var(--text-primary);
+        }
+
+        input::placeholder {
+            color: #ccc;
+        }
+
+        /* Buttons */
+        button {
+            width: 100%;
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            border: 1px solid var(--accent-color);
+            padding: 12px;
+            border-radius: var(--card-radius);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        button.secondary {
+            background-color: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        button.secondary:hover:not(:disabled) {
+            border-color: var(--text-primary);
+        }
+
+        /* Notifications */
+        .alert {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            display: none;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert.success {
+            background: var(--success-bg);
+            color: var(--success-text);
+        }
+
+        .alert.error {
+            background: var(--error-bg);
+            color: var(--error-text);
+        }
+
+        .alert.info {
+            background: #f4f4f5;
+            color: #18181b;
+        }
+
+        .code-block {
+            margin-top: 16px;
+            background: #fafafa;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 12px;
+            color: #333;
+            overflow-x: auto;
+            max-height: 200px;
+            display: none;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .code-block {
+                background: #111;
+                color: #eee;
+            }
+        }
+
+        .code-block.show {
+            display: block;
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Security</h1>
+            <p class="subtitle">Register and authenticate with biometric keys.</p>
+        </header>
+
+        <main>
+            <!-- Registration Card -->
+            <div class="card">
+                <div class="section-title">
+                    <span class="status-dot" id="regDot"></span>
+                    Registration
+                </div>
+                <div class="form-group">
+                    <label for="userId">Target User Record ID</label>
+                    <input type="text" id="userId" placeholder="Enter PocketBase user ID">
+                </div>
+                <button id="regBtn" onclick="handleRegister()">
+                    Register Passkey
+                </button>
+                <div id="regAlert" class="alert"></div>
+            </div>
+
+            <!-- Login Card -->
+            <div class="card">
+                <div class="section-title">
+                    <span class="status-dot" id="loginDot"></span>
+                    Authentication
+                </div>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+                    Login with your registered passkey securely.
+                </p>
+                <button id="loginBtn" class="secondary" onclick="handleLogin()">
+                    Sign in with Passkey
+                </button>
+                <div id="loginAlert" class="alert"></div>
+                <div id="tokenOutput" class="code-block"></div>
+            </div>
+        </main>
+
+        <footer>
+            Built by <b>kaiseo</b> from <b>Klaps</b> • Powered by <b>PocketBase</b>
+        </footer>
+    </div>
+
+    <script>
+        // --- SIMULATED SDK (Mirroring sdk/src/index.ts) ---
+        class PasskeyError extends Error { constructor(m) { super(m); this.name = 'PasskeyError'; } }
+        class PasskeyCancelledError extends PasskeyError { constructor() { super('Cancelled'); this.name = 'PasskeyCancelledError'; } }
+        class PasskeyVerificationError extends PasskeyError { constructor(m) { super(m); this.name = 'PasskeyVerificationError'; } }
+
+        class PocketBasePasskey {
+            constructor(apiUrl) { this.apiUrl = apiUrl.replace(/\/$/, ''); }
+
+            async register(userId) {
+                try {
+                    const beginRes = await fetch(`${this.apiUrl}/api/passkey/register/begin`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId })
+                    });
+                    const optionsData = await beginRes.json();
+                    if (!beginRes.ok) throw new PasskeyError(optionsData.error || 'Failed to begin');
+
+                    const options = optionsData.publicKey || optionsData;
+                    const creationOptions = {
+                        ...options,
+                        challenge: this.base64urlToBuffer(options.challenge),
+                        user: { ...options.user, id: this.base64urlToBuffer(options.user?.id) }
+                    };
+                    if (creationOptions.excludeCredentials) {
+                        creationOptions.excludeCredentials = creationOptions.excludeCredentials.map(cred => ({
+                            ...cred, id: this.base64urlToBuffer(cred.id)
+                        }));
+                    }
+                    const credential = await navigator.credentials.create({ publicKey: creationOptions });
+                    if (!credential) throw new PasskeyCancelledError();
+
+                    const response = credential.response;
+                    const body = {
+                        userId, id: credential.id,
+                        rawId: this.bufferToBase64url(new Uint8Array(credential.rawId)),
+                        type: credential.type,
+                        response: {
+                            attestationObject: this.bufferToBase64url(new Uint8Array(response.attestationObject)),
+                            clientDataJSON: this.bufferToBase64url(new Uint8Array(response.clientDataJSON)),
+                        }
+                    };
+
+                    const finishRes = await fetch(`${this.apiUrl}/api/passkey/register/finish`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body)
+                    });
+                    const finishData = await finishRes.json();
+                    if (!finishRes.ok) throw new PasskeyVerificationError(finishData.error);
+                    return finishData;
+                } catch (err) {
+                    if (err.name === 'NotAllowedError') throw new PasskeyCancelledError();
+                    throw err;
+                }
+            }
+
+            async login(userId) {
+                try {
+                    const beginRes = await fetch(`${this.apiUrl}/api/passkey/login/begin`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId })
+                    });
+                    const optionsData = await beginRes.json();
+                    if (!beginRes.ok) throw new PasskeyError(optionsData.error || 'Failed to begin');
+
+                    const options = optionsData.publicKey || optionsData;
+                    const requestOptions = { ...options, challenge: this.base64urlToBuffer(options.challenge) };
+                    if (requestOptions.allowCredentials) {
+                        requestOptions.allowCredentials = requestOptions.allowCredentials.map(cred => ({
+                            ...cred, id: this.base64urlToBuffer(cred.id)
+                        }));
+                    }
+                    const assertion = await navigator.credentials.get({ publicKey: requestOptions });
+                    if (!assertion) throw new PasskeyCancelledError();
+
+                    const response = assertion.response;
+                    const body = {
+                        userId, id: assertion.id,
+                        rawId: this.bufferToBase64url(new Uint8Array(assertion.rawId)),
+                        type: assertion.type,
+                        response: {
+                            authenticatorData: this.bufferToBase64url(new Uint8Array(response.authenticatorData)),
+                            clientDataJSON: this.bufferToBase64url(new Uint8Array(response.clientDataJSON)),
+                            signature: this.bufferToBase64url(new Uint8Array(response.signature)),
+                            userHandle: response.userHandle ? this.bufferToBase64url(new Uint8Array(response.userHandle)) : null,
+                        }
+                    };
+
+                    const finishRes = await fetch(`${this.apiUrl}/api/passkey/login/finish`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body)
+                    });
+                    const finishData = await finishRes.json();
+                    if (!finishRes.ok) throw new PasskeyVerificationError(finishData.error);
+                    return finishData;
+                } catch (err) {
+                    if (err.name === 'NotAllowedError') throw new PasskeyCancelledError();
+                    throw err;
+                }
+            }
+
+            base64urlToBuffer(base64url) {
+                const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
+                const padLen = (4 - (base64.length % 4)) % 4;
+                return new Uint8Array(atob(base64 + '='.repeat(padLen)).split('').map(c => c.charCodeAt(0))).buffer;
+            }
+
+            bufferToBase64url(buffer) {
+                return btoa(String.fromCharCode(...new Uint8Array(buffer))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+            }
+        }
+
+        const sdk = new PocketBasePasskey(window.location.origin);
+
+        async function handleRegister() {
+            const userId = document.getElementById('userId').value.trim();
+            if (!userId) return showAlert('regAlert', 'error', '❌ User Record ID is required');
+
+            setUIState('registration', 'loading');
+            try {
+                await sdk.register(userId);
+                showAlert('regAlert', 'success', 'Successfully registered your passkey. You can now use it to sign in.');
+                setUIState('registration', 'success');
+            } catch (err) {
+                if (err instanceof PasskeyCancelledError) {
+                    showAlert('regAlert', 'info', 'Registration was dismissed.');
+                } else {
+                    showAlert('regAlert', 'error', `Registration failed: ${err.message}`);
+                }
+                setUIState('registration', 'idle');
+            }
+        }
+
+        async function handleLogin() {
+            const userId = document.getElementById('userId').value.trim();
+            // Optional userId for login begin in our backend, but good to have
+            setUIState('login', 'loading');
+            try {
+                const result = await sdk.login(userId || '');
+                showAlert('loginAlert', 'success', 'Login successful! Identity verified.');
+                showCode('tokenOutput', result);
+                setUIState('login', 'success');
+            } catch (err) {
+                if (err instanceof PasskeyCancelledError) {
+                    showAlert('loginAlert', 'info', 'Authentication dismissed.');
+                } else {
+                    showAlert('loginAlert', 'error', `Login failed: ${err.message}`);
+                }
+                setUIState('login', 'idle');
+            }
+        }
+
+        // Utils
+        function setUIState(type, state) {
+            const dot = document.getElementById(type === 'registration' ? 'regDot' : 'loginDot');
+            const btn = document.getElementById(type === 'registration' ? 'regBtn' : 'loginBtn');
+
+            if (state === 'loading') {
+                dot.className = 'status-dot loading';
+                btn.disabled = true;
+                btn.innerText = 'Verifying...';
+            } else if (state === 'success') {
+                dot.className = 'status-dot active';
+                btn.disabled = false;
+                btn.innerText = type === 'registration' ? 'Register Another' : 'Sign in again';
+            } else {
+                dot.className = 'status-dot';
+                btn.disabled = false;
+                btn.innerText = type === 'registration' ? 'Register Passkey' : 'Sign in with Passkey';
+            }
+        }
+
+        function showAlert(id, type, msg) {
+            const el = document.getElementById(id);
+            el.className = `alert show ${type}`;
+            el.innerText = msg;
+        }
+
+        function showCode(id, data) {
+            const el = document.getElementById(id);
+            el.className = 'code-block show';
+            el.innerText = JSON.stringify(data, null, 2);
+        }
+
+        window.addEventListener('load', () => {
+            if (!window.PublicKeyCredential) {
+                document.body.innerHTML = '<div style="padding: 40px; text-align: center; color: red;">❌ Your browser does not support WebAuthn (Passkeys).</div>';
+            }
+        });
+    </script>
+</body>
+
+</html>

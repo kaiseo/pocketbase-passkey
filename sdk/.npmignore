@@ -1,0 +1,4 @@
+src/
+tsconfig.json
+.npmignore
+# Include dist/ in NPM but ignore in Git
