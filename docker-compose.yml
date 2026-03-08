@@ -1,14 +1,12 @@
 services:
   pocketbase:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
+    image: kaiseo/pocketbase-passkey:latest
     ports:
       - "8090:8090"
     volumes:
       - ./pb_data:/app/pb_data
     environment:
-      - PASSKEY_RPID=localhost
-      - PASSKEY_RP_DISPLAY_NAME=pocketbase-passkey
-      - PASSKEY_RP_ORIGINS=http://localhost:8090
+      - PASSKEY_RPID=example.com
+      - PASSKEY_RP_DISPLAY_NAME=My App
+      - PASSKEY_RP_ORIGINS=https://example.com
     restart: unless-stopped
