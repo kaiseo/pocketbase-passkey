@@ -54,6 +54,12 @@ func (u *PasskeyUser) WebAuthnIcon() string {
 	return ""
 }
 
+// StoredCredential wraps the standard WebAuthn credential with additional metadata.
+type StoredCredential struct {
+	webauthn.Credential
+	RegisteredAt time.Time `json:"registeredAt"`
+}
+
 // WebAuthnCredentials returns the stored credentials for the user from a JSON field.
 func (u *PasskeyUser) WebAuthnCredentials() []webauthn.Credential {
 	existing := u.record.GetString("passkey_credentials")
@@ -61,9 +67,14 @@ func (u *PasskeyUser) WebAuthnCredentials() []webauthn.Credential {
 		return []webauthn.Credential{}
 	}
 
-	var credentials []webauthn.Credential
-	if err := json.Unmarshal([]byte(existing), &credentials); err != nil {
+	var stored []StoredCredential
+	if err := json.Unmarshal([]byte(existing), &stored); err != nil {
 		return []webauthn.Credential{}
+	}
+
+	credentials := make([]webauthn.Credential, len(stored))
+	for i, s := range stored {
+		credentials[i] = s.Credential
 	}
 	return credentials
 }
@@ -307,11 +318,14 @@ func cleanSessions() {
 
 func saveCredential(app *pocketbase.PocketBase, record *core.Record, cred *webauthn.Credential) error {
 	existing := record.GetString("passkey_credentials")
-	var credentials []webauthn.Credential
+	var credentials []StoredCredential
 	if existing != "" {
 		_ = json.Unmarshal([]byte(existing), &credentials)
 	}
-	credentials = append(credentials, *cred)
+	credentials = append(credentials, StoredCredential{
+		Credential:   *cred,
+		RegisteredAt: time.Now(),
+	})
 
 	credJSON, _ := json.Marshal(credentials)
 	record.Set("passkey_credentials", string(credJSON))
@@ -320,11 +334,11 @@ func saveCredential(app *pocketbase.PocketBase, record *core.Record, cred *webau
 
 func updateCredentialCounter(app *pocketbase.PocketBase, record *core.Record, cred *webauthn.Credential) {
 	existing := record.GetString("passkey_credentials")
-	var credentials []webauthn.Credential
+	var credentials []StoredCredential
 	if err := json.Unmarshal([]byte(existing), &credentials); err == nil {
 		for i, c := range credentials {
 			if string(c.ID) == string(cred.ID) {
-				credentials[i] = *cred
+				credentials[i].Credential = *cred
 				break
 			}
 		}
