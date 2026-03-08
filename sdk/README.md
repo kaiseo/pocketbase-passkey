@@ -85,7 +85,7 @@ try {
 
 ## Support & Integration
 
-This SDK is designed to work with the [PocketBase Passkey Server](https://github.com/your-username/pocketbase-passkey).
+This SDK is designed to work with the [PocketBase Passkey Server](https://github.com/kaiseo/pocketbase-passkey).
 
 ## License
 
