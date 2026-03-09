@@ -172,6 +172,7 @@ export class PocketBasePasskey {
                 attestationObject: this.bufferToBase64url(new Uint8Array(response.attestationObject)),
                 clientDataJSON: this.bufferToBase64url(new Uint8Array(response.clientDataJSON)),
             },
+            transports: response.getTransports ? response.getTransports() : [],
         };
 
         const finishRes = await fetch(`${this.apiUrl}/api/passkey/register/finish`, {
