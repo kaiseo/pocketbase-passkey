@@ -149,11 +149,23 @@ func registerBegin(app *pocketbase.PocketBase) func(*core.RequestEvent) error {
 		}
 
 		user := &PasskeyUser{record: userRecord}
+
+		// Convert existing credentials to exclusion descriptors
+		existingCreds := user.WebAuthnCredentials()
+		exclusions := make([]protocol.CredentialDescriptor, len(existingCreds))
+		for i, cred := range existingCreds {
+			exclusions[i] = protocol.CredentialDescriptor{
+				Type:         protocol.PublicKeyCredentialType,
+				CredentialID: cred.ID,
+			}
+		}
+
 		options, session, err := wauth.BeginRegistration(
 			user,
 			webauthn.WithAuthenticatorSelection(protocol.AuthenticatorSelection{
 				UserVerification: protocol.VerificationPreferred,
 			}),
+			webauthn.WithExclusions(exclusions),
 		)
 		if err != nil {
 			return errorRes(e, http.StatusInternalServerError, err.Error())
